@@ -2,12 +2,12 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import { NavigationContainer, useIsFocused } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Constants from 'expo-constants';
 import { Icon } from 'react-native-elements';
-import { darkBlue, blue, white, black } from './src/constants/colors';
+import { darkBlue, blue, white } from './src/constants/colors';
 import tabs from './src/constants/tabs';
 import Product from './src/screens/Product/container';
 import reducerCombiner from './src/reducers';
@@ -17,23 +17,15 @@ const store = createStore(reducerCombiner);
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
 
-const UnderRouteStack = ({ screen, route }) => {
-	const focus = useIsFocused();
-
-	return (
-		<Stack.Navigator
-			screenOptions={{
-				headerShown: false,
-			}}
-			initialRouteName={screen.name}
-		>
-			<Stack.Screen name={screen.name} component={screen.component} />
-			<Stack.Screen name="Product">
-				{props => <Product {...props} tabRoute={route} parentFocus={focus} />}
-			</Stack.Screen>
-		</Stack.Navigator>
-	);
-};
+const UnderRouteStack = ({ screen }) => (
+	<Stack.Navigator
+		screenOptions={{ headerShown: false }}
+		initialRouteName={screen.name}
+	>
+		<Stack.Screen name={screen.name} component={screen.component} />
+		<Stack.Screen name="Product" component={Product} />
+	</Stack.Navigator>
+);
 
 export default function App() {
 	return (
@@ -51,14 +43,6 @@ export default function App() {
 						style: {
 							paddingTop: Constants.statusBarHeight,
 							backgroundColor: blue,
-							shadowColor: black,
-							shadowOffset: {
-								width: 0,
-								height: 2,
-							},
-							shadowOpacity: 0.25,
-							shadowRadius: 3.84,
-							elevation: 5,
 							zIndex: 1,
 							position: 'relative',
 						},
@@ -83,8 +67,14 @@ export default function App() {
 									/>
 								),
 							}}
+							listeners={({ navigation }) => ({
+								tabPress: e => {
+									e.preventDefault();
+									navigation.navigate(tab.name, { screen: tab.name });
+								},
+							})}
 						>
-							{props => <UnderRouteStack {...props} screen={tab} />}
+							{props => <UnderRouteStack screen={tab} />}
 						</Tab.Screen>
 					))}
 				</Tab.Navigator>

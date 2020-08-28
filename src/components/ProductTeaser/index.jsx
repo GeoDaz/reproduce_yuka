@@ -3,6 +3,8 @@ import style from './style';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { setNutriScoreColor } from '../../functions';
 import HighLight from '../HighLight';
+import { Icon } from 'react-native-elements';
+import { grey } from '../../constants/colors';
 
 const ProductTeaser = ({ navigation, product, showDate = false }) => {
 	const onPress = () => {
@@ -18,19 +20,31 @@ const ProductTeaser = ({ navigation, product, showDate = false }) => {
 				resizeMode="contain"
 			/>
 			<View style={style.wrapFixer}>
-				<Text style={style.bold}>{product.product_name}</Text>
+				<View style={style.grow}>
+					<Text style={style.title}>{product.product_name}</Text>
+					{!!product.nutrition_grade_fr && (
+						<View style={style.zoneText}>
+							<HighLight
+								color={setNutriScoreColor(product.nutrition_grade_fr)}
+							>
+								{product.nutrition_grade_fr.toUpperCase()}
+							</HighLight>
+							<Text style={[style.grey, style.textImage]}>Nutri-Score</Text>
+						</View>
+					)}
+				</View>
 				{showDate && (
-					<Text>
-						{new Date(product.scan_date).toLocaleDateString()} à{' '}
-						{new Date(product.scan_date).toLocaleTimeString()}
-					</Text>
-				)}
-				{!!product.nutrition_grade_fr && (
-					<View style={style.zoneText}>
-						<Text>Nutriscore : </Text>
-						<HighLight color={setNutriScoreColor(product.nutrition_grade_fr)}>
-							{product.nutrition_grade_fr.toUpperCase()}
-						</HighLight>
+					<View style={style.history}>
+						<Icon
+							name="history"
+							size={15}
+							type="font-awesome-5"
+							color={grey}
+						/>
+						<Text style={style.textImage}>
+							{new Date(product.scan_date).toLocaleDateString()} à{' '}
+							{new Date(product.scan_date).toLocaleTimeString()}
+						</Text>
 					</View>
 				)}
 			</View>

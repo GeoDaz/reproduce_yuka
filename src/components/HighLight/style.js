@@ -11,6 +11,7 @@ export default StyleSheet.create({
 	},
 	text: {
 		color: white,
+		fontSize: 12
 	},
 	red: {
 		backgroundColor: red,

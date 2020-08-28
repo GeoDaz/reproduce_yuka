@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { View, Text, Image } from 'react-native';
 import style from './style';
 import { Icon } from 'react-native-elements';
-import { yellow } from '../../constants/colors';
+import { yellow, grey } from '../../constants/colors';
 import BackButton from '../../components/BackButton';
 import HighLight from '../../components/HighLight';
 import { setNutriScoreColor } from '../../functions';
@@ -11,24 +11,11 @@ import { setNutriScoreColor } from '../../functions';
 const Product = ({
 	navigation,
 	route,
-	tabRoute,
-	parentFocus,
 	favorites,
 	addProductToFavorites,
 	removeProductFromFavorites,
 }) => {
 	const { product } = route.params;
-	const mounted = useRef(false);
-
-	useEffect(() => {
-		// TODO : tester le bug du navigator
-		// Reset ProductStack navigation when tab change on parent TabScreen
-		// Mounted shoulb verified because useEffect is done at componentDidMount even if parentFocus is not changing like it asked in useEffect []
-		if (mounted.current && parentFocus) {
-			navigation.navigate(tabRoute.name);
-		}
-		mounted.current = true;
-	}, [parentFocus]);
 
 	const toggleFavorite = () => {
 		if (favorites[product.id]) {
@@ -53,8 +40,8 @@ const Product = ({
 
 	return (
 		<View style={style.page}>
-			<BackButton navigation={navigation} />
 			<View style={[style.row, style.card]}>
+				<BackButton navigation={navigation} />
 				<Image
 					style={style.image}
 					// ternary for IOS
@@ -80,45 +67,74 @@ const Product = ({
 						/>
 					</TouchableOpacity>
 					{!!product.nutrition_grade_fr && (
-						<View style={[style.zoneText, style.inline]}>
-							<Text>Nutriscore : </Text>
+						<View style={style.inline}>
 							<HighLight
 								color={setNutriScoreColor(product.nutrition_grade_fr)}
 							>
 								{product.nutrition_grade_fr.toUpperCase()}
 							</HighLight>
+							<Text style={[style.grey, style.textImage]}>Nutri-Score</Text>
 						</View>
 					)}
 				</View>
 			</View>
-			<Text style={style.zoneText}>
-				<Text style={style.bold}>Catégories : </Text>
-				{product.categories}
-			</Text>
-			<Text style={style.zoneText}>
-				<Text style={style.bold}>Ingrédients : </Text>
-				{product.ingredients_text}
-			</Text>
-			<Text style={style.zoneText}>
-				<Text style={style.bold}>Teneur en : </Text>
-			</Text>
-			<View style={[style.zoneText, style.inline]}>
-				<Text style={style.bold}> - Sucre : </Text>
-				<HightLightNutrientLevel level={product.nutrient_levels.sugars} />
+			<View style={style.card}>
+				<View style={style.zoneText}>
+					<Text style={style.underTitle}>Catégories</Text>
+					<Text>{product.categories}</Text>
+				</View>
 			</View>
-			<View style={[style.zoneText, style.inline]}>
-				<Text style={style.bold}> - Graisses saturés : </Text>
-				<HightLightNutrientLevel
-					level={product.nutrient_levels['saturated-fat']}
-				/>
+			<View style={style.card}>
+				<View style={style.zoneText}>
+					<Text style={style.underTitle}>Ingrédients</Text>
+					<Text>{product.ingredients_text}</Text>
+				</View>
 			</View>
-			<View style={[style.zoneText, style.inline]}>
-				<Text style={style.bold}> - Graisses : </Text>
-				<HightLightNutrientLevel level={product.nutrient_levels.fat} />
-			</View>
-			<View style={[style.zoneText, style.inline]}>
-				<Text style={style.bold}> - Sel : </Text>
-				<HightLightNutrientLevel level={product.nutrient_levels.salt} />
+			<View style={style.card}>
+				<View style={[style.zoneText, style.inline]}>
+					<View style={style.iconWrapper}>
+						<Icon name="cubes" size={18} type="font-awesome-5" color={grey} />
+					</View>
+					<Text style={[style.bold, style.textImage]}>Teneur en Sucre : </Text>
+					<HightLightNutrientLevel level={product.nutrient_levels.sugars} />
+				</View>
+				<View style={[style.zoneText, style.inline]}>
+					<View style={style.iconWrapper}>
+						<Icon
+							name="fill-drip"
+							size={15}
+							type="font-awesome-5"
+							color={grey}
+						/>
+					</View>
+					<Text style={[style.bold, style.textImage]}>
+						Teneur en Graisses saturés :{' '}
+					</Text>
+					<HightLightNutrientLevel
+						level={product.nutrient_levels['saturated-fat']}
+					/>
+				</View>
+				<View style={[style.zoneText, style.inline]}>
+					<View style={[style.iconWrapper, style.dropPosition]}>
+						<Icon name="tint" size={15} type="font-awesome-5" color={grey} />
+					</View>
+					<Text style={[style.bold, style.textImage]}>
+						Teneur en Graisses :{' '}
+					</Text>
+					<HightLightNutrientLevel level={product.nutrient_levels.fat} />
+				</View>
+				<View style={[style.zoneText, style.inline]}>
+					<View style={style.iconWrapper}>
+						<Icon
+							name="spray-can"
+							size={15}
+							type="font-awesome-5"
+							color={grey}
+						/>
+					</View>
+					<Text style={[style.bold, style.textImage]}>Teneur en Sel : </Text>
+					<HightLightNutrientLevel level={product.nutrient_levels.salt} />
+				</View>
 			</View>
 		</View>
 	);
