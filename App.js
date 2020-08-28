@@ -19,7 +19,10 @@ const Stack = createStackNavigator();
 
 const UnderRouteStack = ({ screen }) => (
 	<Stack.Navigator
-		screenOptions={{ headerShown: false }}
+		screenOptions={{
+			headerShown: false,
+			animationEnabled: false,
+		}}
 		initialRouteName={screen.name}
 	>
 		<Stack.Screen name={screen.name} component={screen.component} />
@@ -49,7 +52,7 @@ export default function App() {
 						activeTintColor: white,
 						showIcon: true,
 						headerTitleAlign: 'center',
-						indicatorStyle: {backgroundColor: white}
+						indicatorStyle: { backgroundColor: white },
 					}}
 				>
 					{tabs.map((tab, i) => (
