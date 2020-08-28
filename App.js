@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { NavigationContainer, useIsFocused } from '@react-navigation/native';
@@ -7,9 +7,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Constants from 'expo-constants';
 import { Icon } from 'react-native-elements';
-import { blue } from './src/constants/colors';
-import screens from './src/constants/screens';
-import Product from './src/screens/Product/constainer';
+import { darkBlue, blue, white, black } from './src/constants/colors';
+import tabs from './src/constants/tabs';
+import Product from './src/screens/Product/container';
 import reducerCombiner from './src/reducers';
 import StorageManager from './src/components/StorageManager';
 
@@ -17,18 +17,8 @@ const store = createStore(reducerCombiner);
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
 
-const ProductStack = ({ screen, route, navigation }) => {
-	const focused = useIsFocused();
-
-	useEffect(() => {
-		if (focused && route.state) {
-			console.log(route)
-			navigation.reset({
-				index: 0,
-				routes: route.state.routes,
-			});
-		}
-	}, [focused]);
+const UnderRouteStack = ({ screen, route }) => {
+	const focus = useIsFocused();
 
 	return (
 		<Stack.Navigator
@@ -38,7 +28,9 @@ const ProductStack = ({ screen, route, navigation }) => {
 			initialRouteName={screen.name}
 		>
 			<Stack.Screen name={screen.name} component={screen.component} />
-			<Stack.Screen name="Product" component={Product} />
+			<Stack.Screen name="Product">
+				{props => <Product {...props} tabRoute={route} parentFocus={focus} />}
+			</Stack.Screen>
 		</Stack.Navigator>
 	);
 };
@@ -50,36 +42,49 @@ export default function App() {
 				<StorageManager />
 				<StatusBar
 					translucent
-					backgroundColor={blue}
+					backgroundColor={darkBlue}
 					barStyle="light-content"
 					animated
 				/>
 				<Tab.Navigator
 					tabBarOptions={{
-						style: { paddingTop: Constants.statusBarHeight },
-						activeTintColor: blue,
+						style: {
+							paddingTop: Constants.statusBarHeight,
+							backgroundColor: blue,
+							shadowColor: black,
+							shadowOffset: {
+								width: 0,
+								height: 2,
+							},
+							shadowOpacity: 0.25,
+							shadowRadius: 3.84,
+							elevation: 5,
+							zIndex: 1,
+							position: 'relative',
+						},
+						activeTintColor: white,
 						showIcon: true,
 						headerTitleAlign: 'center',
 					}}
 				>
-					{screens.map((screen, i) => (
+					{tabs.map((tab, i) => (
 						<Tab.Screen
 							key={i}
-							name={screen.name}
+							name={tab.name}
 							options={{
-								tabBarLabel: screen.title,
+								tabBarLabel: tab.title,
 								tabBarIcon: ({ color }) => (
 									<Icon
-										name={screen.icon.name}
+										name={tab.icon.name}
 										size={24}
 										type="font-awesome-5"
 										color={color}
-										solid={screen.icon.solid}
+										solid={tab.icon.solid}
 									/>
 								),
 							}}
 						>
-							{props => <ProductStack {...props} screen={screen} />}
+							{props => <UnderRouteStack {...props} screen={tab} />}
 						</Tab.Screen>
 					))}
 				</Tab.Navigator>

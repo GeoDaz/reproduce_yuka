@@ -1,15 +1,13 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { FlatList, View, Text } from 'react-native';
-import ListItem from '../components/ListItem';
-import ProductTeaser from '../components/ProductTeaser';
+import ListItem from '../../components/ListItem';
+import ProductTeaser from '../../components/ProductTeaser';
+import style from './style';
 
-const Favorite = ({ navigation }) => {
-	const favorites = useSelector(state => state.favorites);
-
+const Favorite = ({ navigation, favorites }) => {
 	if (Object.keys(favorites).length) {
 		return (
-			<View style={{ flex: 1 }}>
+			<View style={style.listWrapper}>
 				<FlatList
 					data={Object.values(favorites)}
 					keyExtractor={({ id }) => id}
@@ -23,10 +21,8 @@ const Favorite = ({ navigation }) => {
 		);
 	} else {
 		return (
-			<View style={{ flex: 1, padding: 15 }}>
-				<Text style={{ textAlign: 'center', marginBottom: 10 }}>
-					Vos favoris sont vides.
-				</Text>
+			<View style={style.page}>
+				<Text style={style.hat}>Vos favoris sont vides.</Text>
 				<Text>
 					Pour ajouter un produit à vos favoris. Vous pouvez scanner un produit
 					ou en visiter un depuis votre historique puis cliquer sur l'étoile. Il

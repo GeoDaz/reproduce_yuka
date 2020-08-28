@@ -11,6 +11,9 @@ const StorageManager = () => {
 	const favorites = useSelector(state => state.favorites);
 
 	useEffect(() => {
+		// To reset Local Storage
+		// AsyncStorage.setItem('history', JSON.stringify({}))
+		// AsyncStorage.setItem('favorites', JSON.stringify({}))
 		AsyncStorage.getItem('history')
 			.then(storedHistory => {
 				if (storedHistory) {

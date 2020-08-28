@@ -1,6 +1,6 @@
-import History from '../screens/History';
-import Favorite from '../screens/Favorite';
-import Scan from '../screens/Scan';
+import History from '../screens/History/container';
+import Favorite from '../screens/Favorites/container';
+import Scan from '../screens/Scan/container';
 
 export default [
 	{

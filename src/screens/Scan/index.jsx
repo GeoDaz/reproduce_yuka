@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { View, Text, ActivityIndicator, Vibration } from 'react-native';
+import { View, Text, ActivityIndicator, Vibration, TouchableOpacity } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { Camera } from 'expo-camera';
 import style from './style';
-import { blue } from '../../constants/colors';
-import { addProductToHistory } from '../../actions/history';
+import { Icon } from 'react-native-elements';
+import { blue, yellow } from '../../constants/colors';
 
-const Scan = ({ navigation }) => {
+const Scan = ({ navigation, addProductToHistory }) => {
 	const focused = useIsFocused();
-	const dispatch = useDispatch();
 	const [camPermission, setCamPermission] = useState(null);
 	const [scanned, setScanned] = useState(false);
+	const [flashOn, setFlash] = useState(false);
+	// Used to wait for Tab animation before render or unrender Camera
+	const [mountCamera, setMountCamera] = useState(false);
 
 	useEffect(() => {
 		Camera.requestPermissionsAsync().then(({ status }) => {
@@ -20,27 +21,34 @@ const Scan = ({ navigation }) => {
 	}, []);
 
 	useEffect(() => {
-		// Reset scanned when screen is re-focused
-		if (scanned && focused) {
-			setScanned(false);
+		if (focused) {
+			// Prevents from Tab animation bug while Camera is rendering
+			setTimeout(() => setMountCamera(true), 300);
+			// Reset scanned when screen is re-focused
+			if (scanned) {
+				setScanned(false);
+			}
+		} else {
+			setTimeout(() => setMountCamera(false), 300);
 		}
 	}, [focused]);
 
 	const handleScan = ({ data }) => {
-		setScanned(true);
-		Vibration.vibrate();
-		console.log(`https://world.openfoodfacts.org/api/v0/product/${data}.json`);
 		fetch(`https://world.openfoodfacts.org/api/v0/product/${data}.json`)
 			.then(response => response.json())
 			.then(responseJson => {
 				if (responseJson.product) {
+					Vibration.vibrate();
+					setScanned(true);
 					const product = filterProduct(responseJson.product);
-					dispatch(addProductToHistory(product));
+					addProductToHistory(product);
 					navigation.navigate('Product', { product });
 				}
 			})
 			.catch(error => console.error(error));
 	};
+
+	const toggleFlash = () => setFlash(!flashOn);
 
 	const filterProduct = product => {
 		return {
@@ -53,22 +61,23 @@ const Scan = ({ navigation }) => {
 			brands: product.brands,
 			nutrition_grade_fr: product.nutrition_grade_fr,
 			nutrient_levels: product.nutrient_levels,
+			scan_date: new Date().valueOf(),
 		};
 	};
 
-	if (camPermission === null) {
+	if (camPermission === false) {
 		return (
-			<View style={style.page}>
-				<ActivityIndicator color={blue} />
-			</View>
-		);
-	} else if (camPermission === false) {
-		return (
-			<View style={style.page}>
+			<View style={[style.page, style.pageText]}>
 				<Text>
 					Pas d'accès à l'appereil photo. Vous devez accepter l'utilisation de
 					l'appereil photo pour le bon fonctionnement de cette application.
 				</Text>
+			</View>
+		);
+	} else if (camPermission === null || !mountCamera) {
+		return (
+			<View style={[style.page, style.pageWait]}>
+				<ActivityIndicator color="white" />
 			</View>
 		);
 	} else {
@@ -78,8 +87,23 @@ const Scan = ({ navigation }) => {
 					type={Camera.Constants.Type.back}
 					style={style.camera}
 					onBarCodeScanned={!scanned && focused ? handleScan : undefined}
+					flashMode={
+						flashOn
+							? Camera.Constants.FlashMode.torch
+							: Camera.Constants.FlashMode.off
+					}
 				>
-					<View style={style.cameraView}></View>
+					<View style={style.cameraView}>
+						<TouchableOpacity onPress={toggleFlash} style={style.floatBtn}>
+							<Icon
+								name="lightbulb"
+								size={25}
+								type="font-awesome-5"
+								color={yellow}
+								solid={flashOn}
+							/>
+						</TouchableOpacity>
+					</View>
 				</Camera>
 			</View>
 		);
