@@ -49,6 +49,7 @@ export default function App() {
 						activeTintColor: white,
 						showIcon: true,
 						headerTitleAlign: 'center',
+						indicatorStyle: {backgroundColor: white}
 					}}
 				>
 					{tabs.map((tab, i) => (
